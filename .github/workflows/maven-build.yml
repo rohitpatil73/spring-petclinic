@@ -1,29 +1,52 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-java-with-maven
+name: Build and Analyze with SonarCloud
 
-name: Java CI with Maven
+ 
 
 on:
+
   push:
-    branches: [ main ]
+
+    branches: [ "main" ]
+
   pull_request:
-    branches: [ main ]
+
+    branches: [ "main" ]
+
+ 
 
 jobs:
+
   build:
 
+    name: Build and SonarCloud Analysis
+
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ '17' ]
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK ${{matrix.java}}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{matrix.java}}
-          distribution: 'adopt'
-          cache: maven
-      - name: Build with Maven Wrapper
-        run: ./mvnw -B verify
+
+    - name: Checkout code
+
+      uses: actions/checkout@v4
+
+    - name: Set up JDK
+
+      uses: actions/setup-java@v3
+
+      with:
+
+        java-version: '17'
+
+        distribution: 'temurin'
+
+    - name: Build with Maven
+
+      run: mvn clean install
+
+    - name: SonarCloud Scan
+
+      run: mvn verify sonar:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.organization=${{ secrets.SONAR_ORG }} -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+
+
+
+
